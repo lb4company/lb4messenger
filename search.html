@@ -3,70 +3,216 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>ابحث & أضف صديق — LB4 Messenger</title>
+<title>LB4 Messenger — بحث</title>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
 <style>
- body{margin:0;font-family:'Cairo',sans-serif;background:linear-gradient(180deg,#040404,#0b0b0b);color:#fff;min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:28px}
- .card{width:100%;max-width:720px;background:rgba(255,255,255,0.03);padding:18px;border-radius:12px}
- input{width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:#fff}
- .user{display:flex;justify-content:space-between;align-items:center;padding:10px;border-radius:8px;margin-top:8px}
- button.add{background:#10b981;border:none;padding:8px 12px;border-radius:8px;color:#001}
- a.back{display:inline-block;margin-top:12px;color:#cbd5e1;text-decoration:none}
+  :root{--bg:#070707;--accent:#10b981;--muted:#cbd5e1}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:'Cairo',sans-serif;background:linear-gradient(180deg,#040404,#0b0b0b);color:#fff;min-height:100vh}
+  .container{max-width:700px;margin:40px auto;padding:20px;background:rgba(255,255,255,0.03);border-radius:12px;box-shadow:0 8px 30px rgba(0,0,0,0.6)}
+  header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+  header a{color:#cbd5e1;text-decoration:none}
+  input{width:100%;padding:12px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:#fff;margin-bottom:16px}
+  .user-card{background:rgba(255,255,255,0.05);padding:10px;border-radius:10px;display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+  .user-info{display:flex;align-items:center;gap:10px}
+  .avatar{width:50px;height:50px;border-radius:50%;background:#222;flex:0 0 50px}
+  .btn{padding:8px 12px;border:none;border-radius:8px;cursor:pointer;font-weight:600}
+  .add{background:var(--accent);color:#021}
+  .added{background:#1e293b;color:#fff;cursor:default}
+  .note{color:var(--muted);font-size:0.95rem;margin-bottom:10px}
 </style>
 </head>
 <body>
-  <div class="card">
-    <h2>ابحث عن مستخدم</h2>
-    <input id="q" placeholder="ادخل اسم المستخدم للبحث (username)" />
-    <div id="results"></div>
-    <a class="back" href="home.html">&larr; عودة</a>
-  </div>
+<div class="container">
+  <header>
+    <div style="font-weight:800;font-size:20px;color:#fff">LB4 Messenger</div>
+    <nav>
+      <a href="home.html">الصفحة الرئيسية</a> • 
+      <a href="#" id="logoutBtn">خروج</a>
+    </nav>
+  </header>
+
+  <h3 style="margin:0 0 6px">🔍 ابحث عن مستخدم لإضافته</h3>
+  <div class="note">يمكنك كتابة بداية اسم المستخدم — البحث يحاول تلقائياً ويتعامل مع الحسابات القديمة حتى لو لم تُضبط حقل البحث.</div>
+  <input type="text" id="searchInput" placeholder="أدخل اسم المستخدم أو جزء منه...">
+  <div id="results"></div>
+</div>
 
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
-  import { getFirestore, collection, query, where, getDocs, doc, updateDoc, arrayUnion, getDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+/* Firebase imports */
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+import {
+  getFirestore, collection, query, orderBy, startAt, endAt, limit,
+  getDocs, doc, getDoc, setDoc
+} from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyCW7TGm8FQXKasKKeKXw7-f6cZzPOzhGiU",
-    authDomain: "lb4-messenger.firebaseapp.com",
-    projectId: "lb4-messenger",
-    storageBucket: "lb4-messenger.firebasestorage.app",
-    messagingSenderId: "373210384215",
-    appId: "1:373210384215:web:1a23ab2832bfbacd256012",
-    measurementId: "G-EQ7GH30WFQ"
+/* Firebase config (استخدم نفس ال config عندك) */
+const firebaseConfig = {
+  apiKey: "AIzaSyCW7TGm8FQXKasKKeKXw7-f6cZzPOzhGiU",
+  authDomain: "lb4-messenger.firebaseapp.com",
+  projectId: "lb4-messenger",
+  storageBucket: "lb4-messenger.firebasestorage.app",
+  messagingSenderId: "373210384215",
+  appId: "1:373210384215:web:1a23ab2832bfbacd256012",
+  measurementId: "G-EQ7GH30WFQ"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+let currentUser = null;
+
+onAuthStateChanged(auth, user=>{
+  if(!user) return location.href='login.html';
+  currentUser = user;
+  ensureMySearchKey(); // ضبط searchKey لحسابك تلقائياً
+});
+
+/* زر الخروج */
+document.getElementById('logoutBtn').addEventListener('click', async (e)=>{
+  e.preventDefault();
+  await signOut(auth);
+  location.href='login.html';
+});
+
+/* وظيفة debounce بسيطة */
+function debounce(fn, delay=300){
+  let t;
+  return (...args)=>{
+    clearTimeout(t);
+    t = setTimeout(()=>fn(...args), delay);
   };
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getFirestore(app);
+}
 
-  let me = null;
-  onAuthStateChanged(auth, u=>{
-    if(!u) location.href='login.html';
-    me = u;
-  });
+/* نضمن أن كل مستخدم جديد يُخزن له حقل searchKey (lowercase) */
+async function ensureMySearchKey(){
+  try{
+    const meRef = doc(db,'users', currentUser.uid);
+    const meSnap = await getDoc(meRef);
+    const uname = meSnap.exists() ? (meSnap.data().username || meSnap.data().displayName || currentUser.email.split('@')[0]) : currentUser.email.split('@')[0];
+    await setDoc(meRef, { searchKey: uname.toLowerCase() }, { merge: true });
+  }catch(err){
+    console.error('ensureMySearchKey error', err);
+  }
+}
 
-  document.getElementById('q').addEventListener('keyup', async (e)=>{
-    const val = e.target.value.trim().toLowerCase();
-    const results = document.getElementById('results');
-    results.innerHTML = '';
-    if(!val) return;
-    const q = query(collection(db,'users'), where('username','>=',val), where('username','<=', val+'\uf8ff'));
-    const snap = await getDocs(q);
+/* البحث الفعّال: يحاول البحث عبر searchKey أولاً (fast). 
+   لو ما حصل نتائج، يعمل fallback: يجلب مجموعة محدودة (limit) ويفلتر محلياً 
+   — هذا يضمن عمل البحث مع المستخدمين القدامى بدون تغيير قاعدة البيانات فوراً. */
+const resultsEl = document.getElementById('results');
+document.getElementById('searchInput').addEventListener('input', debounce(async (e)=>{
+  const q = e.target.value.trim().toLowerCase();
+  resultsEl.innerHTML = '';
+  if(!q) return;
+
+  try{
+    // محاولة سريعة عبر searchKey (مفضلة لأنها تستخدم index)
+    const qFast = query(collection(db,'users'), orderBy('searchKey'), startAt(q), endAt(q + '\uf8ff'), limit(30));
+    const snapFast = await getDocs(qFast);
+
+    if(!snapFast.empty){
+      snapFast.forEach(docSnap=>{
+        renderUserResult(docSnap.id, docSnap.data());
+      });
+      return;
+    }
+
+    // fallback: نجيب دفعة محدودة ونفلتر محلياً (للمستخدمين الذين لا يملكون searchKey)
+    const qFallback = query(collection(db,'users'), limit(200)); // عدد محدود لتقليل التكلفة
+    const snap = await getDocs(qFallback);
+    const matches = [];
     snap.forEach(docSnap=>{
       const d = docSnap.data();
-      if(d.uid === me.uid) return;
-      const el = document.createElement('div');
-      el.className='user';
-      el.innerHTML = `<div><strong>${d.displayName||d.username}</strong><div class="small">@${d.username}</div></div><div><button class="add" data-uid="${d.uid}">إرسال طلب</button></div>`;
-      results.appendChild(el);
-      el.querySelector('.add').addEventListener('click', async ()=>{
-        // add to recipient incomingRequests collection (or top-level friend_requests)
-        await updateDoc(doc(db,'users', d.uid), { friendRequests: arrayUnion(me.uid) });
-        alert('تم إرسال طلب الصداقة');
-      });
+      const username = ((d.username||d.displayName||'') + '').toLowerCase();
+      if(username.includes(q)) matches.push({ id: docSnap.id, data: d });
     });
-  });
+
+    if(matches.length === 0){
+      resultsEl.innerHTML = '<div style="color:#999">لا يوجد مستخدم مطابق.</div>';
+      return;
+    }
+
+    // نعرض أول 50 نتيجة على الأكثر
+    matches.slice(0,50).forEach(m => renderUserResult(m.id, m.data));
+  }catch(err){
+    console.error('search error', err);
+    resultsEl.innerHTML = '<div style="color:#f88">حدث خطأ أثناء البحث. افتح Console للمزيد.</div>';
+  }
+}, 300));
+
+/* دالة عرض بطاقة المستخدم والزر لإرسال الطلب */
+function renderUserResult(uid, data){
+  const card = document.createElement('div');
+  card.className = 'user-card';
+  const display = data.displayName || data.username || uid;
+  const username = data.username || display;
+  const photo = data.photoURL || '';
+  card.innerHTML = `
+    <div class="user-info">
+      <div class="avatar" style="background: ${photo ? "url('"+photo+"') center/cover" : '#222'}"></div>
+      <div>
+        <div style="font-weight:700">${display}</div>
+        <div style="font-size:0.9em;color:#ccc">@${username}</div>
+      </div>
+    </div>
+    <button class="btn add">إرسال طلب</button>
+  `;
+  const btn = card.querySelector('.add');
+  btn.onclick = ()=> sendFriendRequest(uid, data, btn);
+  resultsEl.appendChild(card);
+}
+
+/* إرسال الطلب — يكتب داخل friendRequests/{receiverUid} بنفس بنية متفق عليها */
+async function sendFriendRequest(receiverUid, receiverData, btn){
+  if(!currentUser) return alert('رجاءً سجّل الدخول أولاً');
+  if(receiverUid === currentUser.uid) return alert('لا يمكنك إرسال طلب لنفسك');
+
+  try{
+    // جلب بياناتي (username و displayName)
+    const meRef = doc(db,'users', currentUser.uid);
+    const meSnap = await getDoc(meRef);
+    const meData = meSnap.exists() ? meSnap.data() : {};
+    const payload = {
+      username: meData.username || (currentUser.email.split('@')[0]),
+      displayName: meData.displayName || meData.username || (currentUser.email.split('@')[0]),
+      photoURL: meData.photoURL || '',
+      time: new Date().toISOString()
+    };
+
+    // اكتب الحقل داخل المستند الموحد
+    const receiverRef = doc(db, 'friendRequests', receiverUid);
+    // نستخدم get + set (merge) لعدم مسح بقية الحقول
+    // نقرأ المستند الحالي ثم ندمج
+    const currentSnap = await getDoc(receiverRef);
+    let newData = {};
+    if(currentSnap.exists()) newData = currentSnap.data();
+    newData[currentUser.uid] = payload;
+    await setDoc(receiverRef, newData);
+    btn.textContent = 'تم الإرسال ✅';
+    btn.classList.remove('add');
+    btn.classList.add('added');
+  }catch(err){
+    console.error('sendFriendRequest error', err);
+    alert('حدث خطأ أثناء إرسال الطلب. افتح Console للمزيد.');
+  }
+}
+
+/* ----- (اختياري للمطور) : سكربت ترحيل لإضافة searchKey لكل المستخدمين موجود في القاعدة
+   نفّذه مرة واحدة فقط (بعناية) من Console في صفحة تحتوي على نفس إعداد Firebase (أو من Cloud Function).
+   لا تشغله لو المستخدمون كثيرون — قد يستهلك قراءات/كتابات كبيرة.
+*/
+// async function migrateAllSearchKey(){
+//   const usersSnap = await getDocs(query(collection(db,'users'), limit(1000)));
+//   for(const docSnap of usersSnap.docs){
+//     const d = docSnap.data();
+//     const uname = (d.username || d.displayName || '').toLowerCase();
+//     await setDoc(doc(db,'users',docSnap.id), { searchKey: uname }, { merge: true });
+//   }
+//   alert('Migration done (first batch).');
+// }
+
 </script>
 </body>
 </html>
