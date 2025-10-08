@@ -110,9 +110,7 @@
     width: 30px;
     height: 30px;
     margin-left: 8px; /* For RTL: Space after image */
-    /* ✅ التعديل لجعل اللوجو دائري */
     border-radius: 50%;
-    /* ------------------------------ */
   }
   .me {
     display: flex;
@@ -403,6 +401,28 @@
         cursor: pointer;
         color: var(--text-primary);
     }
+    
+    /* 🌟 التعديلات الجديدة لجعل شريط الإدخال ثابتاً في الأسفل */
+    .msg-area {
+        /* ترك مساحة أسفل منطقة الرسائل تعادل ارتفاع شريط الإدخال */
+        padding-bottom: 68px; 
+    }
+    .input-row {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        width: 100%;
+        z-index: 101;
+        /* حواف علوية لإعطاء مظهر نظيف */
+        border-top-left-radius: 12px;
+        border-top-right-radius: 12px;
+        border: none; /* إزالة الحدود الإضافية */
+        border-top: 1px solid var(--border-color); /* الإبقاء على خط فاصل علوي */
+        padding-bottom: 12px; /* لمسة نهائية */
+    }
+    /* ------------------------------------------------------------------ */
+
   }
 
   /* Ensure the content areas are responsive */
@@ -503,12 +523,16 @@
     if (window.innerWidth <= 850) {
       if (showChat) {
         rightPanel.classList.add('active');
-        backBtn.style.display = 'block';
+        // Re-attach back button listener, ensuring it's the element rendered in chatHeader
+        const currentBackBtn = document.getElementById('backToContacts');
+        if (currentBackBtn) currentBackBtn.style.display = 'block';
       } else {
         rightPanel.classList.remove('active');
-        backBtn.style.display = 'none';
+        // The header will be reset later in renderChatHeader or here
         messagesDiv.innerHTML = ''; // Clear chat area when navigating back
         chatHeader.innerHTML = '<span id="backToContacts" class="material-icons-round back-btn" style="display:none;">arrow_forward</span><div style="font-weight:800; color:var(--text-muted);">الرجاء اختيار صديق للمراسلة</div>';
+        // Re-attach listener after resetting innerHTML
+        document.getElementById('backToContacts').addEventListener('click', () => toggleChatView(false));
         activeChatId = null;
         activeFriend = null;
         messageInput.value = '';
@@ -556,12 +580,22 @@
     });
   });
 
-  backBtn.addEventListener('click', () => toggleChatView(false));
+  // Listener setup for back button (needs to be attached after DOM is ready and after content reset)
+  document.addEventListener('DOMContentLoaded', () => {
+    // Initial attachment for the placeholder back button
+    const initialBackBtn = document.getElementById('backToContacts');
+    if (initialBackBtn) {
+      initialBackBtn.addEventListener('click', () => toggleChatView(false));
+    }
+  });
+
   window.addEventListener('resize', () => {
     // If resized to desktop, ensure chat view is not active in mobile mode
     if (window.innerWidth > 850 && rightPanel.classList.contains('active')) {
         rightPanel.classList.remove('active');
-        backBtn.style.display = 'none';
+        // Only hide the back button if it's currently visible (desktop view doesn't use it)
+        const currentBackBtn = document.getElementById('backToContacts');
+        if (currentBackBtn) currentBackBtn.style.display = 'none';
     }
   });
 
@@ -651,6 +685,7 @@
 
   function renderChatHeader(friendData) {
     const nameText = friendData.displayName||friendData.username;
+    // Note: The back button's display logic is now purely driven by CSS media query when the chat is active.
     chatHeader.innerHTML = `
         <span id="backToContacts" class="material-icons-round back-btn" style="${window.innerWidth <= 850 ? 'display:block' : 'display:none'};">arrow_forward</span>
         <div style="display:flex;align-items:center;gap:12px">
@@ -662,7 +697,8 @@
         </div>
     `;
     // Re-attach back button listener to the new element
-    document.getElementById('backToContacts').addEventListener('click', () => toggleChatView(false));
+    const newBackBtn = document.getElementById('backToContacts');
+    if (newBackBtn) newBackBtn.addEventListener('click', () => toggleChatView(false));
   }
 
   async function openChatWith(friendId, friendData, el){
