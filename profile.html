@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>الملف الشخصي — LB4 Messenger</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+<style>
+ body{margin:0;font-family:'Cairo',sans-serif;background:linear-gradient(180deg,#040404,#0b0b0b);color:#fff;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:28px}
+ .card{width:100%;max-width:520px;background:rgba(255,255,255,0.03);padding:20px;border-radius:12px}
+ input,textarea{width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:#fff;margin-top:8px}
+ button{margin-top:12px;background:#ff7043;border:none;padding:12px;border-radius:10px;color:#071010;font-weight:800;cursor:pointer}
+ a.back{display:block;margin-top:14px;color:#cbd5e1;text-decoration:none}
+</style>
+</head>
+<body>
+  <div class="card">
+    <h2>الملف الشخصي</h2>
+    <label>الاسم المعروض</label>
+    <input id="displayName">
+    <label>حالة (status)</label>
+    <input id="status">
+    <button id="saveBtn">حفظ التغييرات</button>
+    <a class="back" href="home.html">العودة</a>
+  </div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+  import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCW7TGm8FQXKasKKeKXw7-f6cZzPOzhGiU",
+    authDomain: "lb4-messenger.firebaseapp.com",
+    projectId: "lb4-messenger",
+    storageBucket: "lb4-messenger.firebasestorage.app",
+    messagingSenderId: "373210384215",
+    appId: "1:373210384215:web:1a23ab2832bfbacd256012",
+    measurementId: "G-EQ7GH30WFQ"
+  };
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  let uid = null;
+  onAuthStateChanged(auth, async user=>{
+    if(!user) location.href='login.html';
+    uid = user.uid;
+    const snap = await getDoc(doc(db,'users',uid));
+    if(snap.exists()){
+      document.getElementById('displayName').value = snap.data().displayName || '';
+      document.getElementById('status').value = snap.data().status || '';
+    }
+  });
+
+  document.getElementById('saveBtn').addEventListener('click', async ()=>{
+    const displayName = document.getElementById('displayName').value.trim();
+    const status = document.getElementById('status').value.trim();
+    if(!displayName) return alert('الاسم مطلوب');
+    await updateDoc(doc(db,'users',uid), { displayName, status });
+    alert('تم الحفظ');
+    location.href='home.html';
+  });
+</script>
+</body>
+</html>
