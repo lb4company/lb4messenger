@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>LB4 Messenger — Home</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#070707;--accent:#10b981;--muted:#cbd5e1}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:'Cairo',sans-serif;background:linear-gradient(180deg,#040404,#0b0b0b);color:#fff;min-height:100vh}
+  .app{display:flex;gap:18px;max-width:1100px;margin:24px auto;padding:12px}
+  .panel{background:rgba(255,255,255,0.03);border-radius:12px;padding:12px;box-shadow:0 8px 30px rgba(0,0,0,0.6)}
+  .left{width:320px}
+  .right{flex:1;display:flex;flex-direction:column;height:80vh}
+  .search{display:flex;gap:8px;margin-bottom:12px}
+  input.search{flex:1;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:#fff}
+  .user-row{display:flex;align-items:center;gap:12px;padding:8px;border-radius:8px;cursor:pointer}
+  .user-row:hover{background:rgba(255,255,255,0.03)}
+  .avatar{width:48px;height:48px;border-radius:50%;background:#222;display:inline-block}
+  .name{font-weight:700}
+  .msg-area{flex:1;padding:16px;overflow:auto;border-radius:8px}
+  .input-row{display:flex;gap:8px;padding:12px}
+  textarea{flex:1;padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:#fff;resize:none}
+  button.send{background:var(--accent);border:none;padding:12px 16px;border-radius:10px;color:#021;cursor:pointer}
+  header.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+  .top .me{display:flex;align-items:center;gap:10px}
+  .small{color:#cbd5e1;font-size:0.9rem}
+</style>
+</head>
+<body>
+  <div style="max-width:1200px;margin:auto;padding:10px">
+    <div class="top" style="margin:6px 0 18px">
+      <div style="color:#fff;font-weight:800;font-size:20px">LB4 Messenger</div>
+      <div class="me small">مرحباً — <span id="meName">...</span>    • <a href="request.html" style="color:#cbd5e1;text-decoration:none">طلبات</a> • <a href="profile.html" style="color:#cbd5e1;text-decoration:none">الملف</a> • <a href="search.html" style="color:#cbd5e1;text-decoration:none">إضافة</a> • <a id="logoutBtn" href="#" style="color:#cbd5e1;text-decoration:none">خروج</a></div>
+    </div>
+
+    <div class="app">
+      <div class="left panel">
+        <div class="search">
+          <input id="searchInput" class="search" placeholder="بحث في الأصدقاء أو المحادثات">
+        </div>
+        <div id="friendsList"></div>
+      </div>
+
+      <div class="right panel">
+        <div id="chatHeader" style="padding:10px;border-bottom:1px solid rgba(255,255,255,0.03)"></div>
+        <div id="messages" class="msg-area"></div>
+        <div class="input-row">
+          <textarea id="messageInput" rows="2" placeholder="اكتب رسالة..."></textarea>
+          <button class="send" id="sendBtn">إرسال</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+  import { getFirestore, doc, getDoc, onSnapshot, collection, query, where, addDoc, setDoc, serverTimestamp, updateDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCW7TGm8FQXKasKKeKXw7-f6cZzPOzhGiU",
+    authDomain: "lb4-messenger.firebaseapp.com",
+    projectId: "lb4-messenger",
+    storageBucket: "lb4-messenger.firebasestorage.app",
+    messagingSenderId: "373210384215",
+    appId: "1:373210384215:web:1a23ab2832bfbacd256012",
+    measurementId: "G-EQ7GH30WFQ"
+  };
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  let currentUser = null;
+  let activeChatId = null;
+  let activeFriend = null;
+
+  onAuthStateChanged(auth, async user=>{
+    if(!user) return location.href='login.html';
+    currentUser = user;
+    const uDoc = await getDoc(doc(db,'users',user.uid));
+    document.getElementById('meName').textContent = uDoc.exists() ? uDoc.data().displayName || uDoc.data().username : user.email;
+    loadFriends();
+  });
+
+  document.getElementById('logoutBtn').addEventListener('click', async (e)=>{
+    e.preventDefault();
+    await signOut(auth);
+    location.href='login.html';
+  });
+
+  async function loadFriends(){
+    const meRef = doc(db,'users', currentUser.uid);
+    const meSnap = await getDoc(meRef);
+    const friends = (meSnap.exists() && meSnap.data().friends) ? meSnap.data().friends : [];
+    const list = document.getElementById('friendsList');
+    list.innerHTML = '';
+    if(!friends.length) list.innerHTML = '<div class="small">لم تضِف أصدقاء بعد — استخدم "إضافة"</div>';
+    for(const fid of friends){
+      const fSnap = await getDoc(doc(db,'users',fid));
+      if(!fSnap.exists()) continue;
+      const data = fSnap.data();
+      const el = document.createElement('div');
+      el.className='user-row';
+      el.innerHTML = `<div class="avatar"></div><div><div class="name">${data.displayName||data.username}</div><div class="small">@${data.username}</div></div>`;
+      el.addEventListener('click', ()=> openChatWith(fid,data));
+      list.appendChild(el);
+    }
+  }
+
+  async function openChatWith(friendId, friendData){
+    activeFriend = { id: friendId, ...friendData };
+    document.getElementById('chatHeader').innerHTML = `<div style="display:flex;align-items:center;gap:12px"><div class="avatar"></div><div><div style="font-weight:800">${friendData.displayName||friendData.username}</div><div class="small">@${friendData.username}</div></div></div>`;
+    // chatId deterministic by joining UIDs lexicographically
+    activeChatId = [currentUser.uid, friendId].sort().join('_');
+    const messagesDiv = document.getElementById('messages');
+    messagesDiv.innerHTML = '';
+    const msgsCol = collection(db,'chats', activeChatId, 'messages');
+    onSnapshot(msgsCol, snap=>{
+      messagesDiv.innerHTML = '';
+      snap.docs.sort((a,b)=> a.data().ts?.seconds - b.data().ts?.seconds).forEach(doc=>{
+        const d = doc.data();
+        const msgEl = document.createElement('div');
+        msgEl.style.margin='8px 0';
+        msgEl.style.textAlign = (d.from === currentUser.uid) ? 'right' : 'left';
+        msgEl.innerHTML = `<div style="display:inline-block;background:${d.from===currentUser.uid?'#0ea5a0':'rgba(255,255,255,0.06)'};padding:8px 12px;border-radius:10px;max-width:70%">${d.text}</div>`;
+        messagesDiv.appendChild(msgEl);
+      });
+      messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    });
+  }
+
+  document.getElementById('sendBtn').addEventListener('click', async ()=>{
+    const txt = document.getElementById('messageInput').value.trim();
+    if(!txt || !activeChatId) return;
+    await addDoc(collection(db,'chats',activeChatId,'messages'), { text: txt, from: currentUser.uid, ts: serverTimestamp() });
+    document.getElementById('messageInput').value = '';
+    // update last message summary
+    await setDoc(doc(db,'chatsMeta',activeChatId), { participants: [currentUser.uid, activeFriend.id], last: txt, updatedAt: serverTimestamp() }, { merge:true });
+  });
+
+  // simple search filter clientside
+  document.getElementById('searchInput').addEventListener('input', (e)=>{
+    const q = e.target.value.toLowerCase();
+    const rows = document.querySelectorAll('#friendsList .user-row');
+    rows.forEach(r=>{
+      const name = r.textContent.toLowerCase();
+      r.style.display = name.includes(q) ? 'flex' : 'none';
+    });
+  });
+</script>
+</body>
+</html>

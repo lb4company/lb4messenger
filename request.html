@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LB4 Messenger - Friend Requests</title>
+
+  <!-- تصميم أنيق -->
+  <style>
+    body {
+      background-color: #111b21;
+      font-family: 'Poppins', sans-serif;
+      color: white;
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
+      background: #00a884;
+      padding: 15px;
+      text-align: center;
+      font-size: 1.4em;
+      font-weight: bold;
+      letter-spacing: 1px;
+    }
+
+    #friendRequests {
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      max-width: 500px;
+      margin: 30px auto;
+    }
+
+    .request-box {
+      background: #202c33;
+      padding: 15px;
+      border-radius: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 0 10px #0003;
+      transition: transform 0.2s ease-in-out;
+    }
+
+    .request-box:hover {
+      transform: scale(1.03);
+    }
+
+    .request-info p {
+      margin: 0;
+      font-size: 1.1em;
+      color: #fff;
+    }
+
+    .accept-btn {
+      background: #00a884;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 8px;
+      color: white;
+      cursor: pointer;
+      font-weight: bold;
+      transition: 0.3s;
+    }
+
+    .accept-btn:hover {
+      background: #02976f;
+    }
+
+    .no-requests {
+      text-align: center;
+      color: #999;
+      font-size: 1.1em;
+      margin-top: 50px;
+    }
+  </style>
+</head>
+<body>
+
+  <header>LB4 Messenger - Friend Requests</header>
+
+  <div id="friendRequests" class="requests-container">
+    <p class="no-requests">Loading friend requests...</p>
+  </div>
+
+  <!-- Firebase SDKs -->
+  <script type="module">
+    // Import Firebase SDKs
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-analytics.js";
+    import { getFirestore, doc, getDoc, updateDoc, arrayUnion, deleteField } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+
+    // إعدادات Firebase الخاصة بك
+    const firebaseConfig = {
+      apiKey: "AIzaSyCW7TGm8FQXKasKKeKXw7-f6cZzPOzhGiU",
+      authDomain: "lb4-messenger.firebaseapp.com",
+      projectId: "lb4-messenger",
+      storageBucket: "lb4-messenger.firebasestorage.app",
+      messagingSenderId: "373210384215",
+      appId: "1:373210384215:web:1a23ab2832bfbacd256012",
+      measurementId: "G-EQ7GH30WFQ"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+
+    // ✅ دالة قبول الصديق
+    async function acceptFriendRequest(senderUid) {
+      const user = auth.currentUser;
+      if (!user) return alert("You must be logged in!");
+
+      const userRef = doc(db, "users", user.uid);
+      const senderRef = doc(db, "users", senderUid);
+      const requestRef = doc(db, "friendRequests", user.uid);
+
+      try {
+        // أضف كل واحد لقائمة أصدقاء الآخر
+        await updateDoc(userRef, {
+          friends: arrayUnion(senderUid),
+        });
+        await updateDoc(senderRef, {
+          friends: arrayUnion(user.uid),
+        });
+
+        // احذف الطلب بعد القبول
+        const reqSnap = await getDoc(requestRef);
+        if (reqSnap.exists()) {
+          const data = reqSnap.data();
+          if (data[senderUid]) {
+            await updateDoc(requestRef, {
+              [senderUid]: deleteField(),
+            });
+          }
+        }
+
+        alert("✅ تمت إضافة الصديق بنجاح!");
+        loadFriendRequests(); // تحديث القائمة
+      } catch (err) {
+        console.error("Error accepting friend:", err);
+      }
+    }
+
+    // 🔍 تحميل الطلبات
+    async function loadFriendRequests() {
+      const user = auth.currentUser;
+      const container = document.getElementById("friendRequests");
+
+      if (!user) {
+        container.innerHTML = `<p class="no-requests">يرجى تسجيل الدخول لعرض الطلبات.</p>`;
+        return;
+      }
+
+      const ref = doc(db, "friendRequests", user.uid);
+      const snap = await getDoc(ref);
+
+      container.innerHTML = "";
+
+      if (!snap.exists() || Object.keys(snap.data()).length === 0) {
+        container.innerHTML = `<p class="no-requests">لا توجد طلبات صداقة حالياً.</p>`;
+        return;
+      }
+
+      for (const senderUid in snap.data()) {
+        const div = document.createElement("div");
+        div.classList.add("request-box");
+        div.innerHTML = `
+          <div class="request-info">
+            <p><b>${senderUid}</b> أرسل لك طلب صداقة</p>
+          </div>
+          <button class="accept-btn" data-uid="${senderUid}">قبول</button>
+        `;
+        container.appendChild(div);
+      }
+
+      document.querySelectorAll(".accept-btn").forEach(btn => {
+        btn.addEventListener("click", e => {
+          const senderUid = e.target.getAttribute("data-uid");
+          acceptFriendRequest(senderUid);
+        });
+      });
+    }
+
+    // 📡 عند تسجيل الدخول
+    onAuthStateChanged(auth, user => {
+      if (user) {
+        loadFriendRequests();
+      } else {
+        document.getElementById("friendRequests").innerHTML =
+          `<p class="no-requests">يرجى تسجيل الدخول لعرض الطلبات.</p>`;
+      }
+    });
+  </script>
+</body>
+</html>
