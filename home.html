@@ -7,736 +7,792 @@
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
 <style>
-  /*
-  ==========================================
-  Global & Variables
-  ==========================================
-  */
-  :root {
-    --bg-dark: #070707;
-    --panel-bg: #1e1e1e; /* Darker than background for distinction */
-    --accent: #007bff; /* Sleek blue accent */
-    --accent-hover: #0056b3;
-    --text-primary: #f0f0f0;
-    --text-muted: #9e9e9e;
-    --border-color: rgba(255, 255, 255, 0.1);
-    --msg-sent-bg: #007bff;
-    --msg-received-bg: #2b2b2b;
-    --radius-default: 12px;
-  }
-  * {
-    box-sizing: border-box;
-  }
-  body {
-    margin: 0;
-    font-family: 'Cairo', sans-serif;
-    background-color: var(--bg-dark);
-    color: var(--text-primary);
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    padding: 0;
-  }
-  a {
-    color: var(--text-muted);
-    text-decoration: none;
-    transition: color 0.2s;
-  }
-  a:hover {
-    color: var(--accent);
-  }
+  /*
+  ==========================================
+  Global & Variables
+  ==========================================
+  */
+  :root {
+    --bg-dark: #070707;
+    --panel-bg: #1e1e1e; /* Darker than background for distinction */
+    --accent: #007bff; /* Sleek blue accent */
+    --accent-hover: #0056b3;
+    --text-primary: #f0f0f0;
+    --text-muted: #9e9e9e;
+    --border-color: rgba(255, 255, 255, 0.1);
+    --msg-sent-bg: #007bff;
+    --msg-received-bg: #2b2b2b;
+    --radius-default: 12px;
+  }
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    margin: 0;
+    font-family: 'Cairo', sans-serif;
+    background-color: var(--bg-dark);
+    color: var(--text-primary);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+  }
+  a {
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  a:hover {
+    color: var(--accent);
+  }
 
-  /*
-  ==========================================
-  Layout Structure
-  ==========================================
-  */
-  .main-container {
-    max-width: 1200px;
-    width: 100%;
-    margin: 0 auto;
-    padding: 10px;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-  }
-  .app {
-    display: flex;
-    gap: 18px;
-    flex: 1;
-    height: calc(100vh - 80px); /* Adjust based on header height */
-    min-height: 600px;
-  }
-  .panel {
-    background: var(--panel-bg);
-    border-radius: var(--radius-default);
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
-    display: flex;
-    flex-direction: column;
-  }
-  .left {
-    width: 320px;
-    min-width: 300px;
-    overflow: hidden; /* Manage scroll inside content area */
-    padding: 16px;
-  }
-  .right {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-  }
+  /*
+  ==========================================
+  Layout Structure
+  ==========================================
+  */
+  .main-container {
+    max-width: 1200px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 10px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  .app {
+    display: flex;
+    gap: 18px;
+    flex: 1;
+    height: calc(100vh - 80px); /* Adjust based on header height */
+    min-height: 600px;
+  }
+  .panel {
+    background: var(--panel-bg);
+    border-radius: var(--radius-default);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+    display: flex;
+    flex-direction: column;
+  }
+  .left {
+    width: 320px;
+    min-width: 300px;
+    overflow: hidden; /* Manage scroll inside content area */
+    padding: 16px;
+  }
+  .right {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
 
-  /*
-  ==========================================
-  Header Styling
-  ==========================================
-  */
-  header.top {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 0;
-    margin-bottom: 8px;
-  }
-  .logo {
-    display: flex;
-    align-items: center;
-    font-size: 24px;
-    font-weight: 700;
-    color: var(--accent);
-  }
-  .logo img {
-    width: 30px;
-    height: 30px;
-    margin-left: 8px; /* For RTL: Space after image */
-    border-radius: 50%;
-  }
-  .me {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-  .small {
-    color: var(--text-muted);
-    font-size: 0.9rem;
-    font-weight: 300;
-  }
+  /*
+  ==========================================
+  Header Styling
+  ==========================================
+  */
+  header.top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    margin-bottom: 8px;
+  }
+  .logo {
+    display: flex;
+    align-items: center;
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--accent);
+  }
+  .logo img {
+    width: 30px;
+    height: 30px;
+    margin-left: 8px; /* For RTL: Space after image */
+    border-radius: 50%;
+  }
+  .me {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .small {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    font-weight: 300;
+  }
+  /* New Mobile Controls Container */
+  .mobile-controls {
+    display: none; /* Hide on desktop */
+    justify-content: space-around;
+    padding: 8px 0;
+    margin-bottom: 12px;
+    border-bottom: 1px solid var(--border-color);
+  }
+  .mobile-controls a {
+    flex: 1;
+    text-align: center;
+    padding: 6px 0;
+    font-weight: 400;
+    border-radius: 6px;
+  }
+  .mobile-controls a:hover {
+    background-color: rgba(255, 255, 255, 0.08);
+  }
 
-  /*
-  ==========================================
-  Left Panel (Contacts/Requests)
-  ==========================================
-  */
-  .search {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 12px;
-  }
-  input.search {
-    flex: 1;
-    padding: 10px 15px;
-    border-radius: 20px; /* Pill shape */
-    border: 1px solid var(--border-color);
-    background: #2b2b2b;
-    color: var(--text-primary);
-    outline: none;
-    transition: border-color 0.2s;
-  }
-  input.search:focus {
-    border-color: var(--accent);
-  }
 
-  .contacts-scroll {
-    overflow-y: auto;
-    flex: 1;
-    padding-bottom: 10px;
-  }
-  .contacts-scroll::-webkit-scrollbar {
-    width: 6px;
-  }
-  .contacts-scroll::-webkit-scrollbar-thumb {
-    background-color: #444;
-    border-radius: 3px;
-  }
-  
-  h4 {
-    margin: 16px 0 8px;
-    font-weight: 600;
-    color: var(--text-primary);
-  }
+  /*
+  ==========================================
+  Left Panel (Contacts/Requests)
+  ==========================================
+  */
+  .search {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  input.search {
+    flex: 1;
+    padding: 10px 15px;
+    border-radius: 20px; /* Pill shape */
+    border: 1px solid var(--border-color);
+    background: #2b2b2b;
+    color: var(--text-primary);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  input.search:focus {
+    border-color: var(--accent);
+  }
 
-  .user-row {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 10px 8px;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: background-color 0.2s;
-  }
-  .user-row:hover, .user-row.active {
-    background-color: rgba(255, 255, 255, 0.08);
-  }
-  .avatar {
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    background: var(--accent); /* Placeholder background */
-    display: inline-flex;
-    justify-content: center;
-    align-items: center;
-    color: #fff;
-    font-weight: 600;
-    font-size: 1.2rem;
-  }
-  .name {
-    font-weight: 600;
-  }
+  .contacts-scroll {
+    overflow-y: auto;
+    flex: 1;
+    padding-bottom: 10px;
+  }
+  .contacts-scroll::-webkit-scrollbar {
+    width: 6px;
+  }
+  .contacts-scroll::-webkit-scrollbar-thumb {
+    background-color: #444;
+    border-radius: 3px;
+  }
+  
+  h4 {
+    margin: 16px 0 8px;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
 
-  /* Friend Requests */
-  .req-box {
-    background: #2b2b2b;
-    border-radius: 10px;
-    padding: 12px;
-    margin-bottom: 8px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  .req-box p {
-    margin: 0;
-    font-size: 0.95rem;
-  }
-  .req-btns button {
-    margin-left: 6px;
-    padding: 8px 12px;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-weight: 600;
-    transition: opacity 0.2s;
-  }
-  .accept {
-    background: var(--accent);
-    color: #fff;
-  }
-  .reject {
-    background: #ef4444;
-    color: #fff;
-  }
-  .req-btns button:hover {
-    opacity: 0.8;
-  }
+  .user-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 8px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+  .user-row:hover, .user-row.active {
+    background-color: rgba(255, 255, 255, 0.08);
+  }
+  .avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--accent); /* Placeholder background */
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    color: #fff;
+    font-weight: 600;
+    font-size: 1.2rem;
+  }
+  .name {
+    font-weight: 600;
+  }
 
-  /*
-  ==========================================
-  Right Panel (Chat)
-  ==========================================
-  */
-  #chatHeader {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 10px 16px;
-    border-bottom: 1px solid var(--border-color);
-    background: #2b2b2b; /* Slightly darker header */
-  }
-  .msg-area {
-    flex: 1;
-    padding: 16px;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-  }
-  .msg-area::-webkit-scrollbar {
-    width: 6px;
-  }
-  .msg-area::-webkit-scrollbar-thumb {
-    background-color: #444;
-    border-radius: 3px;
-  }
+  /* Friend Requests */
+  .req-box {
+    background: #2b2b2b;
+    border-radius: 10px;
+    padding: 12px;
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .req-box p {
+    margin: 0;
+    font-size: 0.95rem;
+  }
+  .req-btns button {
+    margin-left: 6px;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: opacity 0.2s;
+  }
+  .accept {
+    background: var(--accent);
+    color: #fff;
+  }
+  .reject {
+    background: #ef4444;
+    color: #fff;
+  }
+  .req-btns button:hover {
+    opacity: 0.8;
+  }
 
-  /* Message Bubble Styling */
-  .message-row {
-    margin: 8px 0;
-    display: flex;
-    width: 100%;
-  }
-  .message-row.sent {
-    justify-content: flex-end; /* Align to the right for sent messages (RTL) */
-  }
-  .message-row.received {
-    justify-content: flex-start; /* Align to the left for received messages (RTL) */
-  }
+  /*
+  ==========================================
+  Right Panel (Chat)
+  ==========================================
+  */
+  #chatHeader {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border-color);
+    background: #2b2b2b; /* Slightly darker header */
+    flex-shrink: 0; /* Prevents header from shrinking in mobile view */
+  }
+  .msg-area {
+    flex: 1;
+    padding: 16px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    will-change: scroll-position; /* Optimization hint */
+  }
+  .msg-area::-webkit-scrollbar {
+    width: 6px;
+  }
+  .msg-area::-webkit-scrollbar-thumb {
+    background-color: #444;
+    border-radius: 3px;
+  }
 
-  .message-content {
-    display: inline-block;
-    padding: 10px 14px;
-    border-radius: 18px;
-    max-width: 70%;
-    line-height: 1.4;
-    font-size: 1rem;
-    word-wrap: break-word;
-  }
+  /* Message Bubble Styling */
+  .message-row {
+    margin: 8px 0;
+    display: flex;
+    width: 100%;
+  }
+  .message-row.sent {
+    justify-content: flex-end; /* Align to the right for sent messages (RTL) */
+  }
+  .message-row.received {
+    justify-content: flex-start; /* Align to the left for received messages (RTL) */
+  }
 
-  .message-row.sent .message-content {
-    background: var(--msg-sent-bg);
-    color: #fff;
-    /* Adjust corners for a smoother look */
-    border-bottom-left-radius: 18px;
-    border-top-left-radius: 18px;
-    border-top-right-radius: 4px;
-    border-bottom-right-radius: 18px;
-  }
-  .message-row.received .message-content {
-    background: var(--msg-received-bg);
-    color: var(--text-primary);
-    /* Adjust corners for a smoother look */
-    border-bottom-left-radius: 18px;
-    border-top-left-radius: 4px;
-    border-top-right-radius: 18px;
-    border-bottom-right-radius: 18px;
-  }
+  .message-content {
+    display: inline-block;
+    padding: 10px 14px;
+    border-radius: 18px;
+    max-width: 70%;
+    line-height: 1.4;
+    font-size: 1rem;
+    word-wrap: break-word;
+  }
 
-  /* Input Area */
-  .input-row {
-    display: flex;
-    gap: 8px;
-    padding: 12px 16px;
-    border-top: 1px solid var(--border-color);
-    background: #2b2b2b;
-  }
-  textarea {
-    flex: 1;
-    padding: 10px 15px;
-    border-radius: 20px; /* More rounded */
-    border: 1px solid var(--border-color);
-    background: var(--panel-bg);
-    color: var(--text-primary);
-    resize: none;
-    outline: none;
-    transition: border-color 0.2s;
-    line-height: 1.4;
-    height: 44px; /* Default height */
-    overflow: hidden; /* Hide scrollbar initially */
-  }
-  textarea:focus {
-    border-color: var(--accent);
-    height: auto; /* Allow growth when focused/typing multi-line */
-  }
-  button.send {
-    background: var(--accent);
-    border: none;
-    padding: 0 16px;
-    border-radius: 20px; /* Matches textarea */
-    color: #fff;
-    cursor: pointer;
-    font-weight: 600;
-    transition: background-color 0.2s;
-    height: 44px;
-  }
-  button.send:hover {
-    background: var(--accent-hover);
-  }
+  .message-row.sent .message-content {
+    background: var(--msg-sent-bg);
+    color: #fff;
+    /* Adjust corners for a smoother look */
+    border-bottom-left-radius: 18px;
+    border-top-left-radius: 18px;
+    border-top-right-radius: 4px;
+    border-bottom-right-radius: 18px;
+  }
+  .message-row.received .message-content {
+    background: var(--msg-received-bg);
+    color: var(--text-primary);
+    /* Adjust corners for a smoother look */
+    border-bottom-left-radius: 18px;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 18px;
+    border-bottom-right-radius: 18px;
+  }
 
-  /*
-  ==========================================
-  Responsiveness (Mobile View)
-  ==========================================
-  */
-  @media (max-width: 850px) {
-    .app {
-      flex-direction: column;
-      height: auto;
-      min-height: 0;
-      gap: 0;
-    }
-    .main-container {
-      padding: 0;
-    }
-    .panel {
-      border-radius: 0;
-      box-shadow: none;
-      padding: 0;
-    }
-    .left {
-      width: 100%;
-      min-width: 100%;
-      height: calc(100vh - 60px); /* Fill screen height minus header */
-      padding: 16px;
-      display: flex;
-      flex-direction: column;
-    }
-    .right {
-      position: fixed; /* Chat view overlays the contacts list */
-      top: 0;
-      right: 0;
-      width: 100%;
-      height: 100vh;
-      z-index: 100;
-      transform: translateX(100%); /* Hidden off-screen initially */
-      transition: transform 0.3s ease-out;
-      border-radius: 0;
-      background: var(--bg-dark);
-    }
-    .right.active {
-      transform: translateX(0); /* Slide into view */
-    }
-    /* Hide the main header links on mobile */
-    .me {
-        display: none;
-    }
-    header.top {
-        padding: 10px 16px;
-        background: #1e1e1e;
-        margin-bottom: 0;
-    }
-    #chatHeader {
-        background: #1e1e1e;
-        justify-content: space-between;
-    }
-    .back-btn {
-        margin-right: 10px;
-        cursor: pointer;
-        color: var(--text-primary);
-    }
-    
-    /* 🌟 التعديلات الجديدة لجعل شريط الإدخال ثابتاً في الأسفل */
-    .msg-area {
-        /* ترك مساحة أسفل منطقة الرسائل تعادل ارتفاع شريط الإدخال */
-        padding-bottom: 68px; 
-    }
-    .input-row {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        width: 100%;
-        z-index: 101;
-        /* حواف علوية لإعطاء مظهر نظيف */
-        border-top-left-radius: 12px;
-        border-top-right-radius: 12px;
-        border: none; /* إزالة الحدود الإضافية */
-        border-top: 1px solid var(--border-color); /* الإبقاء على خط فاصل علوي */
-        padding-bottom: 12px; /* لمسة نهائية */
-    }
-    /* ------------------------------------------------------------------ */
+  /* Input Area */
+  .input-row {
+    display: flex;
+    gap: 8px;
+    padding: 12px 16px;
+    border-top: 1px solid var(--border-color);
+    background: #2b2b2b;
+    flex-shrink: 0; /* Prevents input area from shrinking */
+  }
+  textarea {
+    flex: 1;
+    padding: 10px 15px;
+    border-radius: 20px; /* More rounded */
+    border: 1px solid var(--border-color);
+    background: var(--panel-bg);
+    color: var(--text-primary);
+    resize: none;
+    outline: none;
+    transition: border-color 0.2s;
+    line-height: 1.4;
+    height: 44px; /* Default height */
+    overflow: hidden; /* Hide scrollbar initially */
+  }
+  textarea:focus {
+    border-color: var(--accent);
+    height: auto; /* Allow growth when focused/typing multi-line */
+  }
+  button.send {
+    background: var(--accent);
+    border: none;
+    padding: 0 16px;
+    border-radius: 20px; /* Matches textarea */
+    color: #fff;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background-color 0.2s;
+    height: 44px;
+  }
+  button.send:hover {
+    background: var(--accent-hover);
+  }
 
-  }
+  /*
+  ==========================================
+  Responsiveness (Mobile View)
+  ==========================================
+  */
+  @media (max-width: 850px) {
+    .app {
+      flex-direction: column;
+      height: auto;
+      min-height: 0;
+      gap: 0;
+    }
+    .main-container {
+      padding: 0;
+    }
+    .panel {
+      border-radius: 0;
+      box-shadow: none;
+      padding: 0;
+    }
+    .left {
+      width: 100%;
+      min-width: 100%;
+      height: 100vh; /* Fill entire screen height */
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+    }
+    .right {
+      position: fixed; /* Chat view overlays the contacts list */
+      top: 0;
+      right: 0;
+      width: 100%;
+      height: 100vh;
+      z-index: 100;
+      transform: translateX(100%); /* Hidden off-screen initially */
+      transition: transform 0.3s ease-out;
+      border-radius: 0;
+      background: var(--bg-dark);
+    }
+    .right.active {
+      transform: translateX(0); /* Slide into view */
+    }
+    /* Hide the main header links on mobile */
+    .me {
+        display: none;
+    }
+    /* Show the mobile controls */
+    .mobile-controls {
+        display: flex;
+    }
+    header.top {
+        padding: 10px 16px;
+        background: #1e1e1e;
+        margin-bottom: 0;
+        flex-shrink: 0;
+    }
+    #chatHeader {
+        background: #1e1e1e;
+        justify-content: space-between;
+        position: sticky; /* Make chat header sticky at the top */
+        top: 0;
+        z-index: 101;
+    }
+    .back-btn {
+        margin-right: 10px;
+        cursor: pointer;
+        color: var(--text-primary);
+    }
+    
+    /* 🌟 التعديلات الجديدة لجعل شريط الإدخال ثابتاً في الأسفل */
+    .msg-area {
+        /* ترك مساحة أسفل منطقة الرسائل تعادل ارتفاع شريط الإدخال الثابت */
+        padding-bottom: 68px; /* تقريبًا ارتفاع شريط الإدخال */
+    }
+    .input-row {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        width: 100%;
+        z-index: 101;
+        border-top-left-radius: 12px;
+        border-top-right-radius: 12px;
+        border: none;
+        border-top: 1px solid var(--border-color);
+        padding-bottom: 12px;
+    }
+    /* ------------------------------------------------------------------ */
 
-  /* Ensure the content areas are responsive */
-  @media (max-width: 500px) {
-    .message-content {
-      max-width: 85%; /* Give more space for messages on smaller screens */
-    }
-  }
+  }
+
+  /* Ensure the content areas are responsive */
+  @media (max-width: 500px) {
+    .message-content {
+      max-width: 85%; /* Give more space for messages on smaller screens */
+    }
+  }
 </style>
 </head>
 <body>
-  <div class="main-container">
-    <header class="top">
-      <div class="logo">
-        <img src="logo.png" alt="LB4 Logo">
-        LB4 Messenger
-      </div>
-      <div class="me">
-        <span class="small">مرحباً — <span id="meName">...</span></span>
-        <span class="small">•</span>
-        <a href="profile.html">الملف</a>
-        <span class="small">•</span>
-        <a href="search.html">إضافة</a>
-        <span class="small">•</span>
-        <a id="logoutBtn" href="#">خروج</a>
-      </div>
-    </header>
+  <div class="main-container">
+    <header class="top">
+      <div class="logo">
+        <img src="logo.png" alt="LB4 Logo">
+        LB4 Messenger
+      </div>
+      <div class="me">
+        <span class="small">مرحباً — <span id="meName">...</span></span>
+        <span class="small">•</span>
+        <a href="profile.html">الملف</a>
+        <span class="small">•</span>
+        <a href="search.html">إضافة</a>
+        <span class="small">•</span>
+        <a id="logoutBtn" href="#">خروج</a>
+      </div>
+    </header>
 
-    <div class="app">
-      <div id="leftPanel" class="left panel">
-        <div class="search">
-          <input id="searchInput" class="search" placeholder="بحث في الأصدقاء أو المحادثات">
-        </div>
-        <div class="contacts-scroll">
-            <h4 style="margin-top:0;">طلبات المراسلة</h4>
-            <div id="requestsList"></div>
-            
-            <h4>أصدقاؤك</h4>
-            <div id="friendsList"></div>
-        </div>
-      </div>
+    <div class="app">
+      <div id="leftPanel" class="left panel">
+        <div class="search">
+          <input id="searchInput" class="search" placeholder="بحث في الأصدقاء أو المحادثات">
+        </div>
+                <div class="mobile-controls">
+            <a href="profile.html" style="color:var(--text-primary);"><span class="material-icons-round" style="font-size:18px;">person</span> الملف</a>
+            <a href="search.html" style="color:var(--text-primary);"><span class="material-icons-round" style="font-size:18px;">add_circle</span> إضافة</a>
+            <a id="mobileLogoutBtn" href="#" style="color:#ef4444;"><span class="material-icons-round" style="font-size:18px;">logout</span> خروج</a>
+        </div>
+                <div class="contacts-scroll">
+            <h4 style="margin-top:0;">طلبات المراسلة</h4>
+            <div id="requestsList"></div>
+            
+            <h4>أصدقاؤك</h4>
+            <div id="friendsList"></div>
+        </div>
+      </div>
 
-      <div id="rightPanel" class="right panel">
-        <div id="chatHeader">
-            <span id="backToContacts" class="material-icons-round back-btn" style="display:none;">arrow_forward</span>
-            <div style="font-weight:800; color:var(--text-muted);">
-                الرجاء اختيار صديق للمراسلة
-            </div>
-        </div>
-        <div id="messages" class="msg-area">
-            </div>
-        <div class="input-row">
-          <textarea id="messageInput" rows="1" placeholder="اكتب رسالة..."></textarea>
-          <button class="send" id="sendBtn" disabled>
-            <span class="material-icons-round">send</span>
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
+      <div id="rightPanel" class="right panel">
+        <div id="chatHeader">
+            <span id="backToContacts" class="material-icons-round back-btn" style="display:none;">arrow_forward</span>
+            <div style="font-weight:800; color:var(--text-muted);">
+                الرجاء اختيار صديق للمراسلة
+            </div>
+        </div>
+        <div id="messages" class="msg-area">
+            </div>
+        <div class="input-row">
+          <textarea id="messageInput" rows="1" placeholder="اكتب رسالة..."></textarea>
+          <button class="send" id="sendBtn" disabled>
+            <span class="material-icons-round">send</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
 
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
-  import { 
-    getFirestore, doc, getDoc, updateDoc, deleteField, arrayUnion, onSnapshot, 
-    collection, addDoc, setDoc, serverTimestamp 
-  } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+  import { 
+    getFirestore, doc, getDoc, updateDoc, deleteField, arrayUnion, onSnapshot, 
+    collection, addDoc, setDoc, serverTimestamp 
+  } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyCW7TGm8FQXKasKKeKXw7-f6cZzPOzhGiU",
-    authDomain: "lb4-messenger.firebaseapp.com",
-    projectId: "lb4-messenger",
-    storageBucket: "lb4-messenger.firebasestorage.app",
-    messagingSenderId: "373210384215",
-    appId: "1:373210384215:web:1a23ab2832bfbacd256012",
-    measurementId: "G-EQ7GH30WFQ"
-  };
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getFirestore(app);
+  const firebaseConfig = {
+    apiKey: "AIzaSyCW7TGm8FQXKasKKeKXw7-f6cZzPOzhGiU",
+    authDomain: "lb4-messenger.firebaseapp.com",
+    projectId: "lb4-messenger",
+    storageBucket: "lb4-messenger.firebasestorage.app",
+    messagingSenderId: "373210384215",
+    appId: "1:373210384215:web:1a23ab2832bfbacd256012",
+    measurementId: "G-EQ7GH30WFQ"
+  };
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
 
-  let currentUser = null;
-  let activeChatId = null;
-  let activeFriend = null;
+  let currentUser = null;
+  let activeChatId = null;
+  let activeFriend = null;
 
-  // DOM Elements
-  const rightPanel = document.getElementById('rightPanel');
-  const chatHeader = document.getElementById('chatHeader');
-  const messagesDiv = document.getElementById('messages');
-  const messageInput = document.getElementById('messageInput');
-  const sendBtn = document.getElementById('sendBtn');
-  const friendsList = document.getElementById('friendsList');
-  const backBtn = document.getElementById('backToContacts');
+  // DOM Elements
+  const rightPanel = document.getElementById('rightPanel');
+  const chatHeader = document.getElementById('chatHeader');
+  const messagesDiv = document.getElementById('messages');
+  const messageInput = document.getElementById('messageInput');
+  const sendBtn = document.getElementById('sendBtn');
+  const friendsList = document.getElementById('friendsList');
+  const backBtn = document.getElementById('backToContacts');
+  const mobileLogoutBtn = document.getElementById('mobileLogoutBtn'); // New element
 
-  // Utility to handle mobile view toggling
-  function toggleChatView(showChat) {
-    if (window.innerWidth <= 850) {
-      if (showChat) {
-        rightPanel.classList.add('active');
-        // Re-attach back button listener, ensuring it's the element rendered in chatHeader
-        const currentBackBtn = document.getElementById('backToContacts');
-        if (currentBackBtn) currentBackBtn.style.display = 'block';
-      } else {
-        rightPanel.classList.remove('active');
-        // The header will be reset later in renderChatHeader or here
-        messagesDiv.innerHTML = ''; // Clear chat area when navigating back
-        chatHeader.innerHTML = '<span id="backToContacts" class="material-icons-round back-btn" style="display:none;">arrow_forward</span><div style="font-weight:800; color:var(--text-muted);">الرجاء اختيار صديق للمراسلة</div>';
-        // Re-attach listener after resetting innerHTML
-        document.getElementById('backToContacts').addEventListener('click', () => toggleChatView(false));
-        activeChatId = null;
-        activeFriend = null;
-        messageInput.value = '';
-        sendBtn.disabled = true;
-      }
-    }
-  }
+  // Utility to handle mobile view toggling
+  function toggleChatView(showChat) {
+    if (window.innerWidth <= 850) {
+      if (showChat) {
+        rightPanel.classList.add('active');
+        // Re-attach back button listener, ensuring it's the element rendered in chatHeader
+        const currentBackBtn = document.getElementById('backToContacts');
+        if (currentBackBtn) currentBackBtn.style.display = 'block';
+      } else {
+        rightPanel.classList.remove('active');
+        // The header will be reset later in renderChatHeader or here
+        messagesDiv.innerHTML = ''; // Clear chat area when navigating back
+        chatHeader.innerHTML = '<span id="backToContacts" class="material-icons-round back-btn" style="display:none;">arrow_forward</span><div style="font-weight:800; color:var(--text-muted);">الرجاء اختيار صديق للمراسلة</div>';
+        // Re-attach listener after resetting innerHTML
+        const newBackBtn = document.getElementById('backToContacts');
+        if (newBackBtn) newBackBtn.addEventListener('click', () => toggleChatView(false));
+        activeChatId = null;
+        activeFriend = null;
+        messageInput.value = '';
+        sendBtn.disabled = true;
+      }
+    }
+  }
 
-  // Event Listeners
-  onAuthStateChanged(auth, async user=>{
-    if(!user) return location.href='login.html';
-    currentUser = user;
-    const uDoc = await getDoc(doc(db,'users',user.uid));
-    const meName = uDoc.exists() ? uDoc.data().displayName || uDoc.data().username : user.email;
-    document.getElementById('meName').textContent = meName;
-    listenToFriendRequests();
-    loadFriends();
-  });
+  // Event Listeners
+  onAuthStateChanged(auth, async user=>{
+    if(!user) return location.href='login.html';
+    currentUser = user;
+    const uDoc = await getDoc(doc(db,'users',user.uid));
+    const meName = uDoc.exists() ? uDoc.data().displayName || uDoc.data().username : user.email;
+    document.getElementById('meName').textContent = meName;
+    listenToFriendRequests();
+    loadFriends();
+  });
 
-  document.getElementById('logoutBtn').addEventListener('click', async (e)=>{
-    e.preventDefault();
-    await signOut(auth);
-    location.href='login.html';
-  });
+  // Function for signing out
+  async function handleLogout(e) {
+    e.preventDefault();
+    await signOut(auth);
+    location.href='login.html';
+  }
 
-  sendBtn.addEventListener('click', async ()=>{
-    const txt = messageInput.value.trim();
-    if(!txt || !activeChatId) return;
-    await addDoc(collection(db,'chats',activeChatId,'messages'), { text: txt, from: currentUser.uid, ts: serverTimestamp() });
-    messageInput.value = '';
-    sendBtn.disabled = true;
-    await setDoc(doc(db,'chatsMeta',activeChatId), { participants: [currentUser.uid, activeFriend.id], last: txt, updatedAt: serverTimestamp() }, { merge:true });
-  });
-
-  messageInput.addEventListener('input', ()=>{
-    sendBtn.disabled = !messageInput.value.trim() || !activeChatId;
-  });
-
-  document.getElementById('searchInput').addEventListener('input', (e)=>{
-    const q = e.target.value.toLowerCase();
-    const rows = document.querySelectorAll('#friendsList .user-row');
-    rows.forEach(r=>{
-      const name = r.textContent.toLowerCase();
-      r.style.display = name.includes(q) ? 'flex' : 'none';
-    });
-  });
-
-  // Listener setup for back button (needs to be attached after DOM is ready and after content reset)
-  document.addEventListener('DOMContentLoaded', () => {
-    // Initial attachment for the placeholder back button
-    const initialBackBtn = document.getElementById('backToContacts');
-    if (initialBackBtn) {
-      initialBackBtn.addEventListener('click', () => toggleChatView(false));
-    }
-  });
-
-  window.addEventListener('resize', () => {
-    // If resized to desktop, ensure chat view is not active in mobile mode
-    if (window.innerWidth > 850 && rightPanel.classList.contains('active')) {
-        rightPanel.classList.remove('active');
-        // Only hide the back button if it's currently visible (desktop view doesn't use it)
-        const currentBackBtn = document.getElementById('backToContacts');
-        if (currentBackBtn) currentBackBtn.style.display = 'none';
-    }
-  });
+  document.getElementById('logoutBtn').addEventListener('click', handleLogout);
+  if (mobileLogoutBtn) {
+    mobileLogoutBtn.addEventListener('click', handleLogout);
+  }
 
 
-  // ✅ مراقبة طلبات الصداقة المباشرة (Realtime)
-  function listenToFriendRequests(){
-    const ref = doc(db, 'friendRequests', currentUser.uid);
-    onSnapshot(ref, async (snap)=>{
-      const box = document.getElementById('requestsList');
-      box.innerHTML = '';
-      if(!snap.exists() || Object.keys(snap.data()).length === 0){
-        box.innerHTML = '<div class="small" style="text-align:center;padding:5px 0;">لا توجد طلبات حالياً</div>';
-        return;
-      }
-      for(const senderUid in snap.data()){
-        const senderData = snap.data()[senderUid];
-        const div = document.createElement('div');
-        div.className = 'req-box';
-        div.innerHTML = `
-          <div><p><b>${senderData.displayName || senderData.username}</b></p></div>
-          <div class="req-btns">
-            <button class="accept">قبول</button>
-            <button class="reject">رفض</button>
-          </div>
-        `;
-        div.querySelector('.accept').onclick = ()=> acceptRequest(senderUid, div);
-        div.querySelector('.reject').onclick = ()=> rejectRequest(senderUid, div);
-        box.appendChild(div);
-      }
-    });
-  }
+  sendBtn.addEventListener('click', async ()=>{
+    const txt = messageInput.value.trim();
+    if(!txt || !activeChatId) return;
+    await addDoc(collection(db,'chats',activeChatId,'messages'), { text: txt, from: currentUser.uid, ts: serverTimestamp() });
+    messageInput.value = '';
+    sendBtn.disabled = true;
+    await setDoc(doc(db,'chatsMeta',activeChatId), { participants: [currentUser.uid, activeFriend.id], last: txt, updatedAt: serverTimestamp() }, { merge:true });
+  });
 
-  async function acceptRequest(senderUid, el){
-    const userRef = doc(db, "users", currentUser.uid);
-    const senderRef = doc(db, "users", senderUid);
-    const reqRef = doc(db, "friendRequests", currentUser.uid);
+  messageInput.addEventListener('input', ()=>{
+    sendBtn.disabled = !messageInput.value.trim() || !activeChatId;
+  });
 
-    await updateDoc(userRef, { friends: arrayUnion(senderUid) });
-    await updateDoc(senderRef, { friends: arrayUnion(currentUser.uid) });
-    await updateDoc(reqRef, { [senderUid]: deleteField() });
-    el.remove();
-    loadFriends();
-  }
+  document.getElementById('searchInput').addEventListener('input', (e)=>{
+    const q = e.target.value.toLowerCase();
+    const rows = document.querySelectorAll('#friendsList .user-row');
+    rows.forEach(r=>{
+      const name = r.textContent.toLowerCase();
+      r.style.display = name.includes(q) ? 'flex' : 'none';
+    });
+  });
 
-  async function rejectRequest(senderUid, el){
-    const reqRef = doc(db, "friendRequests", currentUser.uid);
-    await updateDoc(reqRef, { [senderUid]: deleteField() });
-    el.remove();
-  }
+  // Listener setup for back button (needs to be attached after DOM is ready and after content reset)
+  document.addEventListener('DOMContentLoaded', () => {
+    // Initial attachment for the placeholder back button
+    const initialBackBtn = document.getElementById('backToContacts');
+    if (initialBackBtn) {
+      initialBackBtn.addEventListener('click', () => toggleChatView(false));
+    }
+    // Adjust textarea size on input
+    messageInput.addEventListener('input', () => {
+      messageInput.style.height = 'auto'; // Reset height
+      messageInput.style.height = messageInput.scrollHeight + 'px'; // Set to scroll height
+      // Limit height to avoid massive input field
+      if (messageInput.scrollHeight > 150) {
+        messageInput.style.height = '150px';
+        messageInput.style.overflowY = 'auto';
+      } else {
+        messageInput.style.overflowY = 'hidden';
+      }
+    });
 
-  // Helper to create avatar initials
-  function getInitials(name) {
-    if (!name) return '?';
-    const parts = name.split(' ');
-    if (parts.length > 1) {
-        return (parts[0][0] + parts[1][0]).toUpperCase();
-    }
-    return parts[0][0].toUpperCase();
-  }
+  });
 
-  async function loadFriends(){
-    const meRef = doc(db,'users', currentUser.uid);
-    const meSnap = await getDoc(meRef);
-    const friends = (meSnap.exists() && meSnap.data().friends) ? meSnap.data().friends : [];
-    friendsList.innerHTML = '';
-    if(!friends.length) friendsList.innerHTML = '<div class="small" style="text-align:center;padding:10px 0;">لم تضف أصدقاء بعد — استخدم "إضافة"</div>';
-    
-    // Clear any previously active chat state if friend list changes
-    // if (activeFriend && !friends.includes(activeFriend.id)) {
-    //     toggleChatView(false); 
-    // }
+  window.addEventListener('resize', () => {
+    // If resized to desktop, ensure chat view is not active in mobile mode
+    if (window.innerWidth > 850 && rightPanel.classList.contains('active')) {
+        rightPanel.classList.remove('active');
+        // Only hide the back button if it's currently visible (desktop view doesn't use it)
+        const currentBackBtn = document.getElementById('backToContacts');
+        if (currentBackBtn) currentBackBtn.style.display = 'none';
+    }
+  });
 
-    for(const fid of friends){
-      const fSnap = await getDoc(doc(db,'users',fid));
-      if(!fSnap.exists()) continue;
-      const data = fSnap.data();
-      const nameText = data.displayName||data.username;
 
-      const el = document.createElement('div');
-      el.className='user-row';
-      el.dataset.friendId = fid; // Store ID for easy access
-      el.innerHTML = `<div class="avatar">${getInitials(nameText)}</div><div><div class="name">${nameText}</div><div class="small">@${data.username}</div></div>`;
-      el.addEventListener('click', ()=> openChatWith(fid,data, el));
-      friendsList.appendChild(el);
-    }
-  }
+  // ✅ مراقبة طلبات الصداقة المباشرة (Realtime)
+  function listenToFriendRequests(){
+    const ref = doc(db, 'friendRequests', currentUser.uid);
+    onSnapshot(ref, async (snap)=>{
+      const box = document.getElementById('requestsList');
+      box.innerHTML = '';
+      if(!snap.exists() || Object.keys(snap.data()).length === 0){
+        box.innerHTML = '<div class="small" style="text-align:center;padding:5px 0;">لا توجد طلبات حالياً</div>';
+        return;
+      }
+      for(const senderUid in snap.data()){
+        const senderData = snap.data()[senderUid];
+        const div = document.createElement('div');
+        div.className = 'req-box';
+        div.innerHTML = `
+          <div><p><b>${senderData.displayName || senderData.username}</b></p></div>
+          <div class="req-btns">
+            <button class="accept">قبول</button>
+            <button class="reject">رفض</button>
+          </div>
+        `;
+        div.querySelector('.accept').onclick = ()=> acceptRequest(senderUid, div);
+        div.querySelector('.reject').onclick = ()=> rejectRequest(senderUid, div);
+        box.appendChild(div);
+      }
+    });
+  }
 
-  function renderChatHeader(friendData) {
-    const nameText = friendData.displayName||friendData.username;
-    // Note: The back button's display logic is now purely driven by CSS media query when the chat is active.
-    chatHeader.innerHTML = `
-        <span id="backToContacts" class="material-icons-round back-btn" style="${window.innerWidth <= 850 ? 'display:block' : 'display:none'};">arrow_forward</span>
-        <div style="display:flex;align-items:center;gap:12px">
-            <div class="avatar" style="background:#4CAF50;">${getInitials(nameText)}</div>
-            <div>
-                <div style="font-weight:600">${nameText}</div>
-                <div class="small">@${friendData.username}</div>
-            </div>
-        </div>
-    `;
-    // Re-attach back button listener to the new element
-    const newBackBtn = document.getElementById('backToContacts');
-    if (newBackBtn) newBackBtn.addEventListener('click', () => toggleChatView(false));
-  }
+  async function acceptRequest(senderUid, el){
+    const userRef = doc(db, "users", currentUser.uid);
+    const senderRef = doc(db, "users", senderUid);
+    const reqRef = doc(db, "friendRequests", currentUser.uid);
 
-  async function openChatWith(friendId, friendData, el){
-    // Highlight the selected user
-    document.querySelectorAll('#friendsList .user-row').forEach(row => row.classList.remove('active'));
-    el.classList.add('active');
+    await updateDoc(userRef, { friends: arrayUnion(senderUid) });
+    await updateDoc(senderRef, { friends: arrayUnion(currentUser.uid) });
+    await updateDoc(reqRef, { [senderUid]: deleteField() });
+    el.remove();
+    loadFriends();
+  }
 
-    activeFriend = { id: friendId, ...friendData };
-    renderChatHeader(friendData);
-    
-    activeChatId = [currentUser.uid, friendId].sort().join('_');
-    messagesDiv.innerHTML = '<div style="text-align:center;color:var(--text-muted);margin-top:20px;">جاري تحميل الرسائل...</div>';
-    
-    // Enable send button for the new chat
-    sendBtn.disabled = !messageInput.value.trim();
-    
-    const msgsCol = collection(db,'chats', activeChatId, 'messages');
-    
-    // Stop previous listener if it exists (for a cleaner transition)
-    // Note: In a production app, you'd save the unsubscribe function and call it here.
-    // For simplicity here, we rely on onSnapshot overwriting the view.
+  async function rejectRequest(senderUid, el){
+    const reqRef = doc(db, "friendRequests", currentUser.uid);
+    await updateDoc(reqRef, { [senderUid]: deleteField() });
+    el.remove();
+  }
 
-    onSnapshot(msgsCol, snap=>{
-      messagesDiv.innerHTML = ''; // Clear for fresh render
-      snap.docs.sort((a,b)=> a.data().ts?.seconds - b.data().ts?.seconds).forEach(doc=>{
-        const d = doc.data();
-        const isSent = (d.from === currentUser.uid);
-        const msgEl = document.createElement('div');
-        msgEl.className=`message-row ${isSent ? 'sent' : 'received'}`;
-        msgEl.innerHTML = `<div class="message-content">${d.text}</div>`;
-        messagesDiv.appendChild(msgEl);
-      });
-      messagesDiv.scrollTop = messagesDiv.scrollHeight;
-    });
+  // Helper to create avatar initials
+  function getInitials(name) {
+    if (!name) return '?';
+    const parts = name.split(' ');
+    if (parts.length > 1) {
+        return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+    }
+    return parts[0][0].toUpperCase();
+  }
 
-    // Handle mobile view transition
-    toggleChatView(true);
-  }
+  async function loadFriends(){
+    const meRef = doc(db,'users', currentUser.uid);
+    const meSnap = await getDoc(meRef);
+    const friends = (meSnap.exists() && meSnap.data().friends) ? meSnap.data().friends : [];
+    friendsList.innerHTML = '';
+    if(!friends.length) friendsList.innerHTML = '<div class="small" style="text-align:center;padding:10px 0;">لم تضف أصدقاء بعد — استخدم "إضافة"</div>';
+    
+    // Clear any previously active chat state if friend list changes
+    // if (activeFriend && !friends.includes(activeFriend.id)) {
+    //     toggleChatView(false); 
+    // }
+
+    for(const fid of friends){
+      const fSnap = await getDoc(doc(db,'users',fid));
+      if(!fSnap.exists()) continue;
+      const data = fSnap.data();
+      const nameText = data.displayName||data.username;
+
+      const el = document.createElement('div');
+      el.className='user-row';
+      el.dataset.friendId = fid; // Store ID for easy access
+      el.innerHTML = `<div class="avatar">${getInitials(nameText)}</div><div><div class="name">${nameText}</div><div class="small">@${data.username}</div></div>`;
+      el.addEventListener('click', ()=> openChatWith(fid,data, el));
+      friendsList.appendChild(el);
+    }
+  }
+
+  function renderChatHeader(friendData) {
+    const nameText = friendData.displayName||friendData.username;
+    // Note: The back button's display logic is now purely driven by CSS media query when the chat is active.
+    chatHeader.innerHTML = `
+        <span id="backToContacts" class="material-icons-round back-btn" style="${window.innerWidth <= 850 ? 'display:block' : 'display:none'};">arrow_forward</span>
+        <div style="display:flex;align-items:center;gap:12px">
+            <div class="avatar" style="background:#4CAF50;">${getInitials(nameText)}</div>
+            <div>
+                <div style="font-weight:600">${nameText}</div>
+                <div class="small">@${friendData.username}</div>
+            </div>
+        </div>
+    `;
+    // Re-attach back button listener to the new element
+    const newBackBtn = document.getElementById('backToContacts');
+    if (newBackBtn) newBackBtn.addEventListener('click', () => toggleChatView(false));
+  }
+
+  async function openChatWith(friendId, friendData, el){
+    // Highlight the selected user
+    document.querySelectorAll('#friendsList .user-row').forEach(row => row.classList.remove('active'));
+    el.classList.add('active');
+
+    activeFriend = { id: friendId, ...friendData };
+    renderChatHeader(friendData);
+    
+    activeChatId = [currentUser.uid, friendId].sort().join('_');
+    messagesDiv.innerHTML = '<div style="text-align:center;color:var(--text-muted);margin-top:20px;">جاري تحميل الرسائل...</div>';
+    
+    // Enable send button for the new chat
+    sendBtn.disabled = !messageInput.value.trim();
+    
+    const msgsCol = collection(db,'chats', activeChatId, 'messages');
+    
+    // Stop previous listener if it exists (for a cleaner transition)
+    // Note: In a production app, you'd save the unsubscribe function and call it here.
+    // For simplicity here, we rely on onSnapshot overwriting the view.
+
+    onSnapshot(msgsCol, snap=>{
+      messagesDiv.innerHTML = ''; // Clear for fresh render
+      snap.docs.sort((a,b)=> (a.data().ts?.seconds || 0) - (b.data().ts?.seconds || 0)).forEach(doc=>{
+        const d = doc.data();
+        const isSent = (d.from === currentUser.uid);
+        const msgEl = document.createElement('div');
+        msgEl.className=`message-row ${isSent ? 'sent' : 'received'}`;
+        msgEl.innerHTML = `<div class="message-content">${d.text}</div>`;
+        messagesDiv.appendChild(msgEl);
+      });
+      messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    });
+
+    // Handle mobile view transition
+    toggleChatView(true);
+  }
 </script>
 </body>
 </html>
