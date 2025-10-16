@@ -8,83 +8,221 @@
 <style>
   :root{--bg:#070707;--accent:#0ea5a0;--muted:#cbd5e1;}
   *{box-sizing:border-box}
-  body{margin:0;font-family:"Cairo",sans-serif;background:linear-gradient(180deg,#050505,#0b0b0b);color:white;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
-  
-  /* --- Card and initial fade-in --- */
-  .card{
-    width:100%;max-width:720px;background:rgba(255,255,255,0.03);padding:36px;border-radius:14px;
-    text-align:center;box-shadow:0 8px 40px rgba(0,0,0,0.6);
-    opacity: 0; /* Start hidden */
-    animation: contentFadeIn 1s ease-out forwards; /* Apply fade-in to the whole card content */
+  body{
+    margin:0;
+    font-family:"Cairo",sans-serif;
+    background:#000;
+    color:white;
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+    overflow:hidden;
   }
-  @keyframes contentFadeIn{from{opacity:0; transform: translateY(20px);} to{opacity:1; transform: translateY(0);}}
   
-  img.logo{width:120px;height:120px;border-radius:50%;object-fit:cover;margin-bottom:14px;border:4px solid rgba(14,165,160,0.15)}
-  h1{margin:6px 0 8px;font-size:28px;letter-spacing:2px}
-
-  /* --- Loader/Loading State Styles --- */
-  .loader-state {
-    transition: opacity 0.3s ease-out; /* Smooth fade-out */
+  /* --- Intro Screen --- */
+  .intro-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    opacity: 1;
+    transition: opacity 0.8s ease-out;
   }
-  .loader{
-    width:64px;height:64px;border-radius:50%;border:6px solid rgba(255,255,255,0.08);border-top-color:var(--accent);
-    margin:20px auto 10px;
-    animation:spin 1s linear infinite;
-  }
-  @keyframes spin{to{transform:rotate(360deg)}}
   
-  .meta{color:var(--muted);margin-top:10px}
-  
-  /* --- Actions/Buttons State Styles --- */
-  .actions-state {
-    display: none; /* Hide the buttons initially */
+  .intro-screen.fade-out {
     opacity: 0;
-    margin-top: 10px; /* Space reserved for the buttons */
+    pointer-events: none;
   }
-  .actions{display:flex;gap:12px;justify-content:center;margin-top:22px}
-  .btn{background:var(--accent);color:#051010;padding:12px 18px;border-radius:10px;text-decoration:none;font-weight:700}
-  .link{color:var(--muted);display:block;margin-top:14px}
   
-  /* Class to show the actions and hide the loader after the timeout */
-  .loaded .loader-state {
-    opacity: 0; /* Fade out the loader/meta text */
-    display: none; /* Finally remove it from flow */
+  .intro-logo {
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 24px;
+    border: 4px solid rgba(14,165,160,0.3);
+    animation: logoGlow 2s ease-in-out;
   }
-  .loaded .actions-state {
-    display: block; /* Make the button container visible */
-    opacity: 1; /* Fade in the buttons/links */
-    transition: opacity 0.5s ease-in 0.1s; /* Smooth fade-in for actions */
+  
+  @keyframes logoGlow {
+    0%, 100% { box-shadow: 0 0 20px rgba(14,165,160,0.3); }
+    50% { box-shadow: 0 0 40px rgba(14,165,160,0.6), 0 0 60px rgba(14,165,160,0.4); }
+  }
+  
+  .intro-title {
+    font-size: 42px;
+    font-weight: 700;
+    letter-spacing: 4px;
+    background: linear-gradient(135deg, #0ea5a0, #06d6d1);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: titleFadeIn 1.5s ease-out;
+  }
+  
+  @keyframes titleFadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  /* --- Main Card --- */
+  .card {
+    width: 100%;
+    max-width: 720px;
+    background: linear-gradient(135deg, rgba(14,165,160,0.05), rgba(14,165,160,0.02));
+    backdrop-filter: blur(10px);
+    padding: 48px 36px;
+    border-radius: 20px;
+    text-align: center;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4), 0 0 0 1px rgba(14,165,160,0.1);
+    opacity: 0;
+    transform: translateY(30px);
+    transition: all 0.8s ease-out;
+  }
+  
+  .card.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  
+  body.loaded {
+    background: linear-gradient(180deg, #050505, #0b0b0b);
+  }
+  
+  img.logo {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 20px;
+    border: 4px solid rgba(14,165,160,0.2);
+    transition: transform 0.3s ease;
+  }
+  
+  img.logo:hover {
+    transform: scale(1.05);
+  }
+  
+  h1 {
+    margin: 10px 0 16px;
+    font-size: 32px;
+    letter-spacing: 3px;
+    background: linear-gradient(135deg, #0ea5a0, #06d6d1);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  
+  .tagline {
+    color: var(--muted);
+    font-size: 16px;
+    margin-bottom: 32px;
+    opacity: 0.9;
+  }
+  
+  .actions {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    margin-top: 28px;
+    flex-wrap: wrap;
+  }
+  
+  .btn {
+    background: linear-gradient(135deg, #0ea5a0, #0c8d89);
+    color: #fff;
+    padding: 14px 32px;
+    border-radius: 12px;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(14,165,160,0.3);
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s ease;
+  }
+  
+  .btn:hover::before {
+    left: 100%;
+  }
+  
+  .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(14,165,160,0.5);
+  }
+  
+  .link {
+    color: var(--muted);
+    display: block;
+    margin-top: 20px;
+    text-decoration: none;
+    transition: color 0.3s ease;
+    font-size: 15px;
+  }
+  
+  .link:hover {
+    color: var(--accent);
+  }
+  
+  /* Responsive */
+  @media (max-width: 600px) {
+    .intro-title { font-size: 32px; }
+    h1 { font-size: 26px; }
+    .card { padding: 36px 24px; }
   }
 </style>
 </head>
 <body>
-  <div class="card" role="main">
-    <img src="logo.png" alt="LB4" class="logo">
-    <h1>LB4 Company</h1>
-    
-    <div class="loader-state" id="loaderState">
-        <div class="loader" aria-hidden="true"></div>
-        <div class="meta">جارٍ التحضير... سيتم عرض الخيارات</div>
-    </div>
-    
-    <div class="actions-state" id="actionButtons">
-        <div class="actions">
-          <a class="btn" href="login.html">أذهب لتسجيل الدخول</a>
-        </div>
-        <a class="link" href="signup.html">ليس لديك حساب؟ أنشئ حساب</a>
-    </div>
+  <!-- Intro Screen -->
+  <div class="intro-screen" id="introScreen">
+    <img src="LB4logo2.png" alt="LB4 Logo" class="intro-logo">
+    <h1 class="intro-title">LB4 Company</h1>
+  </div>
 
+  <!-- Main Content -->
+  <div class="card" id="mainCard" role="main">
+    <img src="logo.png" alt="LB4" class="logo">
+    <h1>LB4 Messenger</h1>
+    <p class="tagline">موقع تواصل رائع بنظام جيد</p>
+    
+    <div class="actions">
+      <a class="btn" href="login.html">تسجيل الدخول</a>
+      <a class="btn" href="signup.html" style="background: linear-gradient(135deg, rgba(14,165,160,0.2), rgba(14,165,160,0.1)); box-shadow: 0 4px 15px rgba(14,165,160,0.15);">إنشاء حساب</a>
+    </div>
   </div>
 
 <script>
-  // Get the card element to apply the 'loaded' class
-  const card = document.querySelector('.card');
-
-  // The timeout function now hides the loader/meta and shows the buttons/links
-  setTimeout(()=> {
-    // Apply the 'loaded' class to trigger the CSS transition/visibility change
-    card.classList.add('loaded');
-  }, 3000); // 3 seconds delay
+  // Intro animation sequence
+  setTimeout(() => {
+    // Fade out intro screen
+    document.getElementById('introScreen').classList.add('fade-out');
+    document.body.classList.add('loaded');
+    
+    // Show main card after intro fades
+    setTimeout(() => {
+      document.getElementById('mainCard').classList.add('visible');
+    }, 300);
+  }, 3000);
 </script>
 </body>
 </html>
